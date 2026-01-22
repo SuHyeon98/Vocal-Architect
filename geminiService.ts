@@ -16,6 +16,7 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     - 해당 가수가 실제로 사용하는 발성법과 고유한 음색의 질감을 매우 구체적이고 전문적인 음악 용어를 사용하여 서술하세요.
     - 'styleKo'와 'vocalTextureKo'는 상세한 한국어 설명을, 'styleEn'과 'vocalTextureEn'은 그에 대응하는 전문적인 영문 설명을 작성하세요.
     - 'moodVariations'의 'mood' 제목은 반드시 한국어로 작성하세요 (예: "애절한 발라드", "에너지 넘치는 록").
+    - 'moodTags'는 가수를 상징하는 핵심 키워드 6개를 생성하세요.
     - 'vocalDnaPrompt' 작성 시: 가수의 이름 등 고유 명사를 절대 포함하지 말고, 오직 목소리의 물리적 특성, 배음, 질감만을 영문 태그로 나열하세요.
     
     결과는 반드시 JSON 형식을 따르세요.`,
@@ -44,7 +45,7 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
               required: ["mood", "prompt"]
             }
           },
-          moodTags: { type: Type.ARRAY, items: { type: Type.STRING } },
+          moodTags: { type: Type.ARRAY, items: { type: Type.STRING }, description: "가수 핵심 키워드 태그 (최대 6개)" },
         },
         required: ["name", "styleKo", "styleEn", "representativeSongs", "vocalTextureKo", "vocalTextureEn", "vocalDnaPrompt", "moodVariations", "moodTags"]
       }

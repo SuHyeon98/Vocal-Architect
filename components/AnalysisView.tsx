@@ -105,9 +105,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
               <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1 block">보컬 아키텍처 분석</span>
               <h2 className="text-4xl font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">{analysis.name}</h2>
             </div>
-            <div className="flex gap-2">
-              {analysis.moodTags.map((tag, idx) => (
-                <span key={idx} className="px-3 py-1 bg-indigo-50 dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 text-indigo-600 dark:text-zinc-400 text-xs font-bold rounded-full">
+            {/* Limit tags to 6 and center text inside them */}
+            <div className="flex flex-wrap gap-2">
+              {analysis.moodTags.slice(0, 6).map((tag, idx) => (
+                <span key={idx} className="inline-flex items-center justify-center min-w-[64px] px-3 py-1 bg-indigo-50 dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 text-indigo-600 dark:text-zinc-400 text-xs font-bold rounded-full text-center">
                   #{tag}
                 </span>
               ))}
@@ -144,7 +145,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
           </div>
 
           <div className="grid grid-cols-1 gap-8 border-t border-slate-100 dark:border-zinc-800 pt-8">
-            {/* Style Section */}
+            {/* Style Section: Bilingual display */}
             <div>
               <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-3 uppercase flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
@@ -152,11 +153,11 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
               </h4>
               <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800">
                 <p className="text-slate-800 dark:text-zinc-200 leading-relaxed font-semibold">{analysis.styleKo}</p>
-                <p className="text-xs text-slate-500 dark:text-zinc-500 mt-2 font-medium italic">{analysis.styleEn}</p>
+                <p className="text-xs text-slate-500 dark:text-zinc-500 mt-2 font-medium italic leading-relaxed">{analysis.styleEn}</p>
               </div>
             </div>
 
-            {/* Vocal Texture Section */}
+            {/* Vocal Texture Section: Bilingual display */}
             <div>
               <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-3 uppercase flex items-center gap-2">
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
@@ -164,7 +165,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
               </h4>
               <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800">
                 <p className="text-slate-800 dark:text-zinc-200 leading-relaxed font-semibold">{analysis.vocalTextureKo}</p>
-                <p className="text-xs text-slate-500 dark:text-zinc-500 mt-2 font-medium italic">{analysis.vocalTextureEn}</p>
+                <p className="text-xs text-slate-500 dark:text-zinc-500 mt-2 font-medium italic leading-relaxed">{analysis.vocalTextureEn}</p>
               </div>
             </div>
           </div>
