@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { analyzeSinger } from './geminiService';
 import { SingerAnalysis, AppStatus, HistoryItem, SavedPrompt, SavedLyric } from './types';
 import Header from './components/Header';
@@ -17,7 +17,7 @@ const SAVED_PROMPTS_STORAGE_KEY = 'vocal_architect_saved_prompts_v1';
 const SAVED_LYRICS_STORAGE_KEY = 'vocal_architect_saved_lyrics_v1';
 const THEME_STORAGE_KEY = 'vocal_architect_theme';
 
-export type ViewType = 'home' | 'library' | 'lyric-editor';
+export type ViewType = 'home' | 'lyric-editor' | 'library';
 
 export interface LyricDraft {
   title: string;
@@ -26,8 +26,11 @@ export interface LyricDraft {
   structured: string;
 }
 
+const VIEW_ORDER: ViewType[] = ['home', 'lyric-editor', 'library'];
+
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('home');
+  const [prevViewIndex, setPrevViewIndex] = useState<number>(0);
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [analysis, setAnalysis] = useState<SingerAnalysis | null>(null);
   const [activePrompts, setActivePrompts] = useState<string[]>([]);
@@ -45,8 +48,8 @@ const App: React.FC = () => {
     structured: ''
   });
 
+  // Handle theme and storage initialization
   useEffect(() => {
-    // Theme initialization
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialTheme = savedTheme ? savedTheme === 'dark' : prefersDark;
@@ -66,6 +69,15 @@ const App: React.FC = () => {
     const savedL = localStorage.getItem(SAVED_LYRICS_STORAGE_KEY);
     if (savedL) setSavedLyrics(JSON.parse(savedL));
   }, []);
+
+  // Handle directional sliding
+  const handleViewChange = (newView: ViewType) => {
+    const newIndex = VIEW_ORDER.indexOf(newView);
+    const currentIndex = VIEW_ORDER.indexOf(activeView);
+    setPrevViewIndex(currentIndex);
+    setActiveView(newView);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
@@ -92,13 +104,12 @@ const App: React.FC = () => {
 
   const handleSearch = async (name: string) => {
     if (!name.trim()) return;
-    setActiveView('home');
+    handleViewChange('home');
     setStatus(AppStatus.LOADING);
     setError(null);
     try {
       const result = await analyzeSinger(name);
       setAnalysis(result);
-      // Initialize active prompts for the new analysis
       setActivePrompts(result.moodVariations.map(v => v.prompt));
       
       const newHistoryItem: HistoryItem = { ...result, id: crypto.randomUUID(), timestamp: Date.now() };
@@ -138,8 +149,7 @@ const App: React.FC = () => {
     setAnalysis(item);
     setActivePrompts(item.moodVariations.map(v => v.prompt));
     setStatus(AppStatus.SUCCESS);
-    setActiveView('home');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleViewChange('home');
   };
 
   const renderContent = () => {
@@ -151,13 +161,13 @@ const App: React.FC = () => {
             lyrics={savedLyrics}
             onDeletePrompt={handleDeleteSavedPrompt} 
             onDeleteLyric={handleDeleteSavedLyric}
-            onBack={() => setActiveView('home')}
+            onBack={() => handleViewChange('home')}
           />
         );
       case 'lyric-editor':
         return (
           <LyricArchitectPage 
-            onBack={() => setActiveView('home')} 
+            onBack={() => handleViewChange('home')} 
             onSaveLyric={handleSaveLyric}
             artistHistory={history}
             draft={lyricDraft}
@@ -167,16 +177,23 @@ const App: React.FC = () => {
       case 'home':
       default:
         return (
-          <div className="animate-in fade-in duration-500">
-            <div className="mb-12"><SearchBar onSearch={handleSearch} isLoading={status === AppStatus.LOADING} /></div>
+          <div className="space-y-12">
+            <div className="mb-12">
+              <SearchBar onSearch={handleSearch} isLoading={status === AppStatus.LOADING} />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-8">
                 {status === AppStatus.LOADING && (
                   <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-softblack-card rounded-3xl border border-slate-200 dark:border-zinc-800 backdrop-blur-sm shadow-xl dark:shadow-2xl">
-                    <LoadingSpinner /><p className="mt-4 text-slate-500 dark:text-zinc-400 animate-pulse">음악 데이터를 분석하는 중입니다...</p>
+                    <LoadingSpinner />
+                    <p className="mt-4 text-slate-500 dark:text-zinc-400 animate-pulse">음악 데이터를 분석하는 중입니다...</p>
                   </div>
                 )}
-                {status === AppStatus.ERROR && <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 font-medium">{error}</div>}
+                {status === AppStatus.ERROR && (
+                  <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 font-medium">
+                    {error}
+                  </div>
+                )}
                 {status === AppStatus.SUCCESS && analysis && (
                   <AnalysisView 
                     analysis={analysis} 
@@ -197,7 +214,7 @@ const App: React.FC = () => {
               </div>
               <div className="lg:col-span-4 space-y-8">
                 <div className="hidden lg:block space-y-8">
-                  <SavedPrompts prompts={savedPrompts.slice(0, 3)} onDelete={handleDeleteSavedPrompt} onViewMore={() => setActiveView('library')} />
+                  <SavedPrompts prompts={savedPrompts.slice(0, 3)} onDelete={handleDeleteSavedPrompt} onViewMore={() => handleViewChange('library')} />
                   <SearchHistory history={history} onSelect={handleSelectHistory} onDelete={(id) => setHistory(h => h.filter(i => i.id !== id))} />
                   <AudioTranscriber />
                 </div>
@@ -208,16 +225,29 @@ const App: React.FC = () => {
     }
   };
 
+  const currentIndex = VIEW_ORDER.indexOf(activeView);
+  const slideClass = currentIndex >= prevViewIndex 
+    ? "slide-in-from-right-12" 
+    : "slide-in-from-left-12";
+
   return (
     <div className="min-h-screen transition-colors duration-300">
       <Header 
         activeView={activeView} 
-        onViewChange={setActiveView} 
+        onViewChange={handleViewChange} 
         savedCount={savedPrompts.length + savedLyrics.length}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
       />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">{renderContent()}</main>
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl overflow-x-hidden">
+        {/* Animated container with directional sliding */}
+        <div 
+          key={activeView} 
+          className={`animate-in fade-in ${slideClass} duration-500 ease-out fill-mode-forwards`}
+        >
+          {renderContent()}
+        </div>
+      </main>
       <footer className="py-8 border-t border-slate-200 dark:border-zinc-800 text-center text-slate-400 dark:text-zinc-600 text-sm">
         <p>© 2024 Vocal Architect • Gemini 3.0 Pro Powered</p>
       </footer>

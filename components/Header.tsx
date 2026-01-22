@@ -11,6 +11,24 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, isDarkMode, toggleTheme }) => {
+  const getSliderPosition = () => {
+    switch (activeView) {
+      case 'home': return 'translate-x-0';
+      case 'lyric-editor': return 'translate-x-full';
+      case 'library': return 'translate-x-[200%]';
+      default: return 'translate-x-0';
+    }
+  };
+
+  const getActiveColor = () => {
+    switch (activeView) {
+      case 'home': return 'bg-blue-600';
+      case 'lyric-editor': return 'bg-indigo-600';
+      case 'library': return 'bg-emerald-600';
+      default: return 'bg-blue-600';
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-softblack/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-6xl">
@@ -23,44 +41,43 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-zinc-400 hidden sm:block">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-zinc-400 hidden sm:block transition-all">
             Vocal Architect
           </h1>
         </div>
 
-        <nav className="flex items-center bg-slate-100 dark:bg-zinc-900/50 p-1 rounded-xl border border-slate-200 dark:border-zinc-800 gap-1">
+        <nav className="relative flex items-center bg-slate-100 dark:bg-zinc-900/50 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-inner overflow-hidden">
+          {/* Sliding Highlight Background */}
+          <div 
+            className={`absolute top-1 bottom-1 left-1 w-[calc(33.33%-2.66px)] ${getActiveColor()} rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-lg ${getSliderPosition()}`}
+          />
+          
           <button
             onClick={() => onViewChange('home')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-              activeView === 'home' 
-                ? 'bg-blue-600 text-white shadow-md' 
-                : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
+            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 ${
+              activeView === 'home' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
             가수 분석
           </button>
           <button
             onClick={() => onViewChange('lyric-editor')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-              activeView === 'lyric-editor' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
+            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 ${
+              activeView === 'lyric-editor' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
             가사 구조화
           </button>
           <button
             onClick={() => onViewChange('library')}
-            className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeView === 'library' 
-                ? 'bg-emerald-600 text-white shadow-md' 
-                : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
+            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+              activeView === 'library' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
             내 저장소
             {savedCount > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                activeView === 'library' ? 'bg-white/20 text-white' : 'bg-blue-600 text-white shadow-sm'
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full transition-all ${
+                activeView === 'library' ? 'bg-white/30 text-white' : 'bg-blue-600 text-white'
               }`}>
                 {savedCount}
               </span>
@@ -68,10 +85,10 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
           </button>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg bg-slate-100 dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-800 transition-colors border border-slate-200 dark:border-zinc-800"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-800 transition-all border border-slate-200 dark:border-zinc-800 active:scale-90 shadow-sm"
             aria-label="Toggle theme"
           >
             {isDarkMode ? (
