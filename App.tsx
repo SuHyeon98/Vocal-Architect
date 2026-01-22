@@ -204,11 +204,11 @@ const App: React.FC = () => {
                 )}
                 {status === AppStatus.IDLE && (
                   <div className="flex flex-col items-center justify-center py-32 text-center animate-in fade-in zoom-in-95 duration-700">
-                    <div className="w-24 h-24 bg-slate-900 dark:bg-zinc-950 rounded-full flex items-center justify-center mb-8 shadow-2xl border border-white/5 ring-8 ring-blue-500/5 relative">
-                      <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <div className="w-24 h-24 bg-blue-50 dark:bg-zinc-950 rounded-full flex items-center justify-center mb-8 shadow-inner dark:shadow-2xl border border-blue-100 dark:border-white/5 ring-8 ring-blue-500/5 relative">
+                      <svg className="w-12 h-12 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                       </svg>
-                      <div className="absolute inset-0 bg-blue-500/10 rounded-full animate-pulse"></div>
+                      <div className="absolute inset-0 bg-blue-500/5 rounded-full animate-pulse"></div>
                     </div>
                     <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-zinc-100 tracking-tight">분석할 가수를 입력하세요</h2>
                     <p className="text-slate-500 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">음악 스타일, 보컬 특징, 그리고 Suno AI 프롬프트를 전문적으로 생성해드립니다.</p>
