@@ -1,0 +1,7 @@
+{
+  "name": "Vocal Architect",
+  "description": "Analyze your favorite singers and generate perfect Suno AI prompts. Includes built-in AI audio transcription for vocal research.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
