@@ -15,6 +15,7 @@ import LyricArchitectPage from './components/LyricArchitectPage';
 const HISTORY_STORAGE_KEY = 'vocal_architect_history_v1';
 const SAVED_PROMPTS_STORAGE_KEY = 'vocal_architect_saved_prompts_v1';
 const SAVED_LYRICS_STORAGE_KEY = 'vocal_architect_saved_lyrics_v1';
+const THEME_STORAGE_KEY = 'vocal_architect_theme';
 
 export type ViewType = 'home' | 'library' | 'lyric-editor';
 
@@ -29,10 +30,12 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('home');
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [analysis, setAnalysis] = useState<SingerAnalysis | null>(null);
+  const [activePrompts, setActivePrompts] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [savedPrompts, setSavedPrompts] = useState<SavedPrompt[]>([]);
   const [savedLyrics, setSavedLyrics] = useState<SavedLyric[]>([]);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   // State for Lyric Architect persistence
   const [lyricDraft, setLyricDraft] = useState<LyricDraft>({
@@ -43,6 +46,17 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
+    // Theme initialization
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme ? savedTheme === 'dark' : prefersDark;
+    setIsDarkMode(initialTheme);
+    if (initialTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (savedHistory) setHistory(JSON.parse(savedHistory));
 
@@ -65,6 +79,17 @@ const App: React.FC = () => {
     localStorage.setItem(SAVED_LYRICS_STORAGE_KEY, JSON.stringify(savedLyrics));
   }, [savedLyrics]);
 
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme ? 'dark' : 'light');
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
   const handleSearch = async (name: string) => {
     if (!name.trim()) return;
     setActiveView('home');
@@ -73,6 +98,9 @@ const App: React.FC = () => {
     try {
       const result = await analyzeSinger(name);
       setAnalysis(result);
+      // Initialize active prompts for the new analysis
+      setActivePrompts(result.moodVariations.map(v => v.prompt));
+      
       const newHistoryItem: HistoryItem = { ...result, id: crypto.randomUUID(), timestamp: Date.now() };
       setHistory(prev => {
         const filtered = prev.filter(item => item.name.toLowerCase() !== result.name.toLowerCase());
@@ -108,6 +136,7 @@ const App: React.FC = () => {
 
   const handleSelectHistory = (item: HistoryItem) => {
     setAnalysis(item);
+    setActivePrompts(item.moodVariations.map(v => v.prompt));
     setStatus(AppStatus.SUCCESS);
     setActiveView('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -143,18 +172,26 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-8">
                 {status === AppStatus.LOADING && (
-                  <div className="flex flex-col items-center justify-center py-20 bg-slate-800/30 rounded-3xl border border-slate-700/50 backdrop-blur-sm">
-                    <LoadingSpinner /><p className="mt-4 text-slate-400 animate-pulse">음악 데이터를 분석하는 중입니다...</p>
+                  <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-softblack-card rounded-3xl border border-slate-200 dark:border-zinc-800 backdrop-blur-sm shadow-xl dark:shadow-2xl">
+                    <LoadingSpinner /><p className="mt-4 text-slate-500 dark:text-zinc-400 animate-pulse">음악 데이터를 분석하는 중입니다...</p>
                   </div>
                 )}
-                {status === AppStatus.ERROR && <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400">{error}</div>}
-                {status === AppStatus.SUCCESS && analysis && <AnalysisView analysis={analysis} onSavePrompt={handleSavePrompt} />}
+                {status === AppStatus.ERROR && <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 font-medium">{error}</div>}
+                {status === AppStatus.SUCCESS && analysis && (
+                  <AnalysisView 
+                    analysis={analysis} 
+                    prompts={activePrompts} 
+                    onPromptsChange={setActivePrompts}
+                    onSavePrompt={handleSavePrompt} 
+                  />
+                )}
                 {status === AppStatus.IDLE && (
                   <div className="flex flex-col items-center justify-center py-32 text-center">
-                    <div className="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mb-6">
-                      <svg className="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
+                    <div className="w-20 h-20 bg-blue-600/10 dark:bg-blue-600/20 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                      <svg className="w-10 h-10 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">분석할 가수를 입력하세요</h2>
+                    <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-zinc-100">분석할 가수를 입력하세요</h2>
+                    <p className="text-slate-500 dark:text-zinc-400">음악 스타일, 보컬 특징, 그리고 AI 프롬프트를 생성해드립니다.</p>
                   </div>
                 )}
               </div>
@@ -172,10 +209,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 flex flex-col">
-      <Header activeView={activeView} onViewChange={setActiveView} savedCount={savedPrompts.length + savedLyrics.length} />
+    <div className="min-h-screen transition-colors duration-300">
+      <Header 
+        activeView={activeView} 
+        onViewChange={setActiveView} 
+        savedCount={savedPrompts.length + savedLyrics.length}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+      />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">{renderContent()}</main>
-      <footer className="py-6 border-t border-slate-800/50 text-center text-slate-500 text-sm">Gemini 3 기반 음악 분석 도구</footer>
+      <footer className="py-8 border-t border-slate-200 dark:border-zinc-800 text-center text-slate-400 dark:text-zinc-600 text-sm">
+        <p>© 2024 Vocal Architect • Gemini 3.0 Pro Powered</p>
+      </footer>
     </div>
   );
 };

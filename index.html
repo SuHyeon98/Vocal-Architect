@@ -7,11 +7,43 @@
   <title>Vocal Architect - Singer Analysis & Suno Prompt Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            softblack: {
+              DEFAULT: '#09090b',
+              card: '#121214',
+              hover: '#18181b'
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    /* Smooth scrollbar for dark mode */
+    .dark ::-webkit-scrollbar {
+      width: 8px;
+    }
+    .dark ::-webkit-scrollbar-track {
+      background: #09090b;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+    .dark ::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
     }
   </style>
 <script type="importmap">
@@ -25,7 +57,7 @@
 }
 </script>
 </head>
-<body>
+<body class="bg-slate-50 dark:bg-softblack text-slate-900 dark:text-zinc-100">
   <div id="root"></div>
 </body>
 </html>

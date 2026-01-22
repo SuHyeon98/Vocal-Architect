@@ -13,9 +13,10 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     3. 각종 음악 플랫폼 및 커뮤니티 (Melon, Spotify, Genie 등 장르 통계 및 대중적 평가)
     
     분석 가이드라인:
-    - 해당 가수가 실제로 사용하는 발성법(진성, 가성, 믹스보이스 등)과 고유한 음색의 질감을 구체적으로 서술하세요.
-    - 대중과 전문가들이 공통적으로 언급하는 가수의 음악적 정체성을 반영하세요.
-    - 'vocalDnaPrompt' 작성 시: 가수의 이름 등 고유 명사를 절대 포함하지 말고, 오직 목소리의 물리적 특성과 선호하는 사운드 스타일만을 영문 태그로 나열하세요.
+    - 해당 가수가 실제로 사용하는 발성법(진성, 가성, 믹스보이스 등)과 고유한 음색의 질감을 매우 구체적이고 전문적인 음악 용어를 사용하여 서술하세요.
+    - 대중과 전문가들이 공통적으로 언급하는 가수의 음악적 정체성과 창법의 특징적인 습관(버릇)을 분석하세요.
+    - 'moodVariations'는 최대 6개까지만 생성하세요.
+    - 'vocalDnaPrompt' 작성 시: 가수의 이름 등 고유 명사를 절대 포함하지 말고, 오직 목소리의 물리적 특성, 배음, 질감, 선호하는 리버브/컴프레션 스타일만을 영문 태그로 나열하세요.
     
     결과는 반드시 JSON 형식을 따르세요.`,
     config: {
@@ -27,12 +28,13 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
           name: { type: Type.STRING },
           styleKo: { type: Type.STRING, description: "나무위키와 플랫폼 데이터를 기반으로 한 상세 음악 스타일 분석 (한국어)" },
           styleEn: { type: Type.STRING, description: "Detailed musical style analysis (English)" },
-          representativeSongs: { type: Type.ARRAY, items: { type: Type.STRING }, description: "가장 대중적이고 상징적인 대표곡 리스트" },
+          representativeSongs: { type: Type.ARRAY, items: { type: Type.STRING }, description: "상징적인 대표곡 리스트" },
           vocalTextureKo: { type: Type.STRING, description: "전문적인 보컬 테크닉 및 질감 분석 (한국어)" },
-          vocalTextureEn: { type: Type.STRING, description: "Detailed vocal texture and technique analysis (English)" },
-          vocalDnaPrompt: { type: Type.STRING, description: "Suno AI Style 입력용 고품질 보컬 태그 (영문)" },
+          vocalTextureEn: { type: Type.STRING, description: "Detailed vocal texture analysis (English)" },
+          vocalDnaPrompt: { type: Type.STRING, description: "Suno AI Style용 고품질 보컬 태그 (영문)" },
           moodVariations: {
             type: Type.ARRAY,
+            maxItems: 6,
             items: {
               type: Type.OBJECT,
               properties: {
@@ -51,16 +53,32 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
 
   if (!response.text) throw new Error("No response from Gemini");
   const analysis = JSON.parse(response.text.trim()) as SingerAnalysis;
+  
   const sources: GroundingSource[] = [];
-  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-  if (groundingChunks) {
-    groundingChunks.forEach((chunk: any) => {
-      if (chunk.web?.uri && chunk.web?.title) {
-        sources.push({ title: chunk.web.title, uri: chunk.web.uri });
+  const metadata = response.candidates?.[0]?.groundingMetadata;
+  
+  if (metadata?.groundingChunks) {
+    metadata.groundingChunks.forEach((chunk: any) => {
+      if (chunk.web?.uri) {
+        sources.push({
+          title: chunk.web.title || "참고 자료",
+          uri: chunk.web.uri,
+          snippet: chunk.text // Using the chunk text as a snippet/summary
+        });
       }
     });
   }
-  analysis.sources = sources.filter((v, i, a) => a.findIndex(t => t.uri === v.uri) === i);
+  
+  // Deduplicate and filter sources
+  analysis.sources = sources.reduce((acc: GroundingSource[], current) => {
+    const x = acc.find(item => item.uri === current.uri);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, []);
+
   return analysis;
 };
 
@@ -89,12 +107,12 @@ export const structureLyrics = async (rawLyrics: string, artistContext?: { name:
 
     Task: Structure these lyrics for Suno AI (v3.5+). 
     
-    CRITICAL INSTRUCTION:
-    1. DO NOT CHANGE, EDIT, OR DELETE ANY WORDS from the original lyrics. 
-    2. Every single character of the user's input must remain intact and in its original order.
-    3. YOUR ONLY JOB is to insert Suno AI metatags (e.g., [Intro], [Verse 1], [Chorus], [Verse 2], [Bridge], [Outro], [Outro/Fade Out]) at the appropriate points between the lyric lines.
-    4. If an Artist Reference is provided, arrange the metatags to reflect that artist's typical song structure and emotional pacing.
-    5. You may also add performance cues in square brackets (e.g., [Emotional Piano Solo], [Powerful Vocal]) between sections, but NEVER modify the lyrics themselves.
+    CRITICAL INSTRUCTION (STRICTLY OBSERVE):
+    1. DO NOT CHANGE, EDIT, REWORD, OR DELETE ANY WORDS from the original lyrics provided above. 
+    2. Every single character, space, and punctuation mark of the user's raw lyrics must remain exactly as they are.
+    3. YOUR ONLY JOB is to wrap or separate the existing lines with Suno AI metatags (e.g., [Intro], [Verse 1], [Chorus], [Verse 2], [Bridge], [Outro], [Outro/Fade Out]).
+    4. Place tags on their own lines.
+    5. If an Artist Reference is provided, arrange the metatags to reflect that specific artist's typical song structure and emotional pacing.
     6. Return ONLY the structured output.`;
 
   const response = await ai.models.generateContent({

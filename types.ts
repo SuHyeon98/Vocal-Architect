@@ -7,6 +7,7 @@ export interface MoodVariation {
 export interface GroundingSource {
   title: string;
   uri: string;
+  snippet?: string;
 }
 
 export interface SingerAnalysis {

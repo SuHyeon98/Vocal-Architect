@@ -60,15 +60,15 @@ const AudioTranscriber: React.FC = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-800/40 rounded-3xl border border-slate-700/50 backdrop-blur-sm">
-      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="p-6 bg-white dark:bg-softblack-card rounded-3xl border border-slate-200 dark:border-zinc-800 backdrop-blur-sm shadow-xl dark:shadow-2xl">
+      <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-zinc-100">
+        <svg className="w-5 h-5 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
         </svg>
         Vocal Transcriber
       </h3>
       
-      <p className="text-sm text-slate-400 mb-6">Record a vocal reference or a song segment to analyze lyrics and phrasing.</p>
+      <p className="text-sm text-slate-500 dark:text-zinc-500 mb-6">보컬 레퍼런스를 녹음하면 가사와 프레이징을 분석해 텍스트로 변환합니다.</p>
 
       <div className="flex flex-col items-center gap-6">
         <button
@@ -76,10 +76,10 @@ const AudioTranscriber: React.FC = () => {
           onMouseUp={stopRecording}
           onTouchStart={startRecording}
           onTouchEnd={stopRecording}
-          className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${
+          className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${
             isRecording 
-              ? 'bg-red-500 scale-110 shadow-[0_0_20px_rgba(239,68,68,0.5)]' 
-              : 'bg-blue-600 hover:bg-blue-500 shadow-lg'
+              ? 'bg-red-500 scale-110 shadow-red-500/50' 
+              : 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30 dark:shadow-blue-900/40'
           } disabled:opacity-50`}
           disabled={isProcessing}
         >
@@ -98,15 +98,15 @@ const AudioTranscriber: React.FC = () => {
             </span>
           )}
         </button>
-        <span className="text-xs font-medium text-slate-500 uppercase tracking-tighter">
+        <span className="text-xs font-bold text-slate-400 dark:text-zinc-600 uppercase tracking-tighter">
           {isRecording ? 'Release to Transcribe' : 'Hold to Record'}
         </span>
       </div>
 
       {transcription && (
-        <div className="mt-6 p-4 bg-slate-900/60 rounded-2xl border border-slate-700/50">
-          <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Transcription Output</h4>
-          <p className="text-sm text-slate-300 leading-relaxed italic">"{transcription}"</p>
+        <div className="mt-6 p-4 bg-slate-50 dark:bg-zinc-950 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-inner">
+          <h4 className="text-xs font-bold text-slate-400 dark:text-zinc-600 uppercase mb-2">Transcription Output</h4>
+          <p className="text-sm text-slate-700 dark:text-zinc-200 leading-relaxed font-medium">"{transcription}"</p>
         </div>
       )}
     </div>
