@@ -123,12 +123,14 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
                   onClick={handleSaveDna}
                   className="text-[10px] bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-900/40 dark:hover:bg-emerald-900/60 text-white dark:text-emerald-400 px-3 py-1 rounded-md border border-emerald-500 dark:border-emerald-900/50 transition-all font-bold flex items-center gap-1 shadow-sm"
                 >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                   저장
                 </button>
                 <button 
                   onClick={() => copyToClipboard(analysis.vocalDnaPrompt, '보컬 DNA')}
-                  className="text-[10px] bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-md transition-all font-bold shadow-md shadow-blue-600/20"
+                  className="text-[10px] bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded-md transition-all font-bold shadow-md shadow-blue-600/20 flex items-center gap-1"
                 >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
                   복사하기
                 </button>
               </div>
@@ -142,15 +144,12 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
             {/* Style Section */}
             <div>
               <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-3 uppercase flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" /></svg>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                 음악 스타일
               </h4>
               <div className="space-y-4">
                 <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800">
                   <p className="text-slate-800 dark:text-zinc-200 leading-relaxed font-semibold">{analysis.styleKo}</p>
-                </div>
-                <div className="p-4 bg-slate-50/50 dark:bg-zinc-900/50 rounded-xl border border-slate-100/50 dark:border-zinc-800/50">
-                  <p className="text-slate-500 dark:text-zinc-500 leading-relaxed text-sm italic">{analysis.styleEn}</p>
                 </div>
               </div>
             </div>
@@ -158,15 +157,12 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
             {/* Vocal Texture Section */}
             <div>
               <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 mb-3 uppercase flex items-center gap-2">
-                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clipRule="evenodd" /></svg>
+                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                 목소리 특징
               </h4>
               <div className="space-y-4">
                 <div className="p-4 bg-slate-50 dark:bg-zinc-900 rounded-xl border border-slate-100 dark:border-zinc-800">
                   <p className="text-slate-800 dark:text-zinc-200 leading-relaxed font-semibold">{analysis.vocalTextureKo}</p>
-                </div>
-                <div className="p-4 bg-slate-50/50 dark:bg-zinc-900/50 rounded-xl border border-slate-100/50 dark:border-zinc-800/50">
-                  <p className="text-slate-500 dark:text-zinc-500 leading-relaxed text-sm italic">{analysis.vocalTextureEn}</p>
                 </div>
               </div>
             </div>
@@ -187,11 +183,12 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
           {analysis.moodVariations.map((variation: MoodVariation, idx: number) => (
             <div key={idx} className="p-6 bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl group hover:border-blue-500/40 dark:hover:border-blue-500/40 transition-all relative overflow-hidden shadow-sm hover:shadow-md dark:shadow-2xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
                   variation.mood.includes('댄스') ? 'bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400' :
                   variation.mood.includes('발라드') ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
                   'bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400'
                 }`}>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                   {variation.mood}
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -199,24 +196,28 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
                     onClick={() => handleSave(idx)}
                     className="text-xs bg-emerald-50 dark:bg-emerald-950 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-900/50 transition-colors flex items-center gap-2 font-bold"
                   >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                     저장
                   </button>
                   <button 
                     onClick={() => setSongInputIndex(songInputIndex === idx ? null : idx)}
                     className="text-xs bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-zinc-700 transition-colors flex items-center gap-2 font-bold"
                   >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     곡별 생성
                   </button>
                   <button 
                     onClick={() => handleRefine(idx)}
                     className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 font-bold shadow-md shadow-indigo-600/20"
                   >
+                    {refiningIndices.has(idx) ? <LoadingSpinner size="sm" /> : <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>}
                     AI 최적화
                   </button>
                   <button 
                     onClick={() => copyToClipboard(prompts[idx] || '')}
                     className="text-xs bg-slate-800 dark:bg-zinc-700 hover:bg-slate-900 dark:hover:bg-zinc-600 text-white dark:text-zinc-300 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-2 font-bold"
                   >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
                     복사
                   </button>
                 </div>
@@ -233,8 +234,9 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
                   />
                   <button
                     onClick={() => handleGenerateSongSpecific(idx)}
-                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold"
+                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2"
                   >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
                     생성
                   </button>
                 </div>
@@ -251,10 +253,11 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
         </div>
       </div>
 
-      {/* Grounding Sources Enhanced */}
+      {/* Grounding Sources */}
       {analysis.sources && analysis.sources.length > 0 && (
         <div className="p-6 bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-2xl">
           <h3 className="text-sm font-bold text-slate-500 dark:text-zinc-500 uppercase mb-4 flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
             참고 리소스 및 데이터 소스
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -272,7 +275,6 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
                   </div>
                   <span className="text-sm font-bold text-slate-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{source.title}</span>
                 </div>
-                {source.snippet && <p className="text-xs text-slate-500 dark:text-zinc-500 leading-relaxed line-clamp-2 mt-2">{source.snippet}</p>}
               </a>
             ))}
           </div>
@@ -281,12 +283,15 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
 
       {/* Representative Songs */}
       <div>
-        <h3 className="text-lg font-bold mb-4 px-2 text-slate-500 dark:text-zinc-500">주요 트랙</h3>
+        <h3 className="text-lg font-bold mb-4 px-2 text-slate-500 dark:text-zinc-500 flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
+          주요 트랙
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {analysis.representativeSongs.map((song, idx) => (
             <div key={idx} className="p-4 bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl flex items-center gap-4 shadow-sm hover:border-blue-300 dark:hover:border-zinc-700 transition-all">
               <div className="w-10 h-10 bg-slate-100 dark:bg-zinc-900 rounded-lg flex items-center justify-center text-slate-400">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" /></svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" /></svg>
               </div>
               <span className="text-slate-700 dark:text-zinc-300 font-bold truncate">{song}</span>
             </div>

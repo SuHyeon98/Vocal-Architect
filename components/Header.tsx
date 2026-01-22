@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
           </h1>
         </div>
 
-        <nav className="relative flex items-center bg-slate-100 dark:bg-zinc-900/50 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-inner overflow-hidden">
+        <nav className="relative flex items-center bg-slate-100 dark:bg-zinc-900/50 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-inner">
           {/* Sliding Highlight Background */}
           <div 
             className={`absolute top-1 bottom-1 left-1 w-[calc(33.33%-2.66px)] ${getActiveColor()} rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-lg ${getSliderPosition()}`}
@@ -54,26 +54,35 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
           
           <button
             onClick={() => onViewChange('home')}
-            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 ${
+            className={`relative z-10 w-28 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'home' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             가수 분석
           </button>
           <button
             onClick={() => onViewChange('lyric-editor')}
-            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 ${
+            className={`relative z-10 w-28 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'lyric-editor' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
             가사 구조화
           </button>
           <button
             onClick={() => onViewChange('library')}
-            className={`relative z-10 w-28 sm:w-32 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`relative z-10 w-28 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'library' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
             내 저장소
             {savedCount > 0 && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full transition-all ${
