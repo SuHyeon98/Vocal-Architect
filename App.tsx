@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { analyzeSinger } from './geminiService';
-import { SingerAnalysis, AppStatus, HistoryItem, SavedPrompt, SavedLyric, User } from './types';
+import { SingerAnalysis, AppStatus, HistoryItem, SavedPrompt, SavedLyric } from './types';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import AnalysisView from './components/AnalysisView';
@@ -11,15 +11,13 @@ import SearchHistory from './components/SearchHistory';
 import SavedPrompts from './components/SavedPrompts';
 import SavedPromptsPage from './components/SavedPromptsPage';
 import LyricArchitectPage from './components/LyricArchitectPage';
-import AuthView from './components/AuthView';
 
 const HISTORY_STORAGE_KEY = 'vocal_architect_history_v1';
 const SAVED_PROMPTS_STORAGE_KEY = 'vocal_architect_saved_prompts_v1';
 const SAVED_LYRICS_STORAGE_KEY = 'vocal_architect_saved_lyrics_v1';
 const THEME_STORAGE_KEY = 'vocal_architect_theme';
-const USER_SESSION_KEY = 'vocal_architect_user_v1';
 
-export type ViewType = 'home' | 'lyric-editor' | 'library' | 'auth';
+export type ViewType = 'home' | 'lyric-editor' | 'library';
 
 export interface LyricDraft {
   title: string;
@@ -28,7 +26,7 @@ export interface LyricDraft {
   structured: string;
 }
 
-const VIEW_ORDER: ViewType[] = ['home', 'lyric-editor', 'library', 'auth'];
+const VIEW_ORDER: ViewType[] = ['home', 'lyric-editor', 'library'];
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('home');
@@ -41,7 +39,6 @@ const App: React.FC = () => {
   const [savedPrompts, setSavedPrompts] = useState<SavedPrompt[]>([]);
   const [savedLyrics, setSavedLyrics] = useState<SavedLyric[]>([]);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const [lyricDraft, setLyricDraft] = useState<LyricDraft>({
     title: '',
@@ -60,9 +57,6 @@ const App: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-
-    const savedUser = localStorage.getItem(USER_SESSION_KEY);
-    if (savedUser) setCurrentUser(JSON.parse(savedUser));
 
     const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (savedHistory) setHistory(JSON.parse(savedHistory));
@@ -129,11 +123,6 @@ const App: React.FC = () => {
   };
 
   const handleSavePrompt = (singerName: string, mood: string, prompt: string) => {
-    if (!currentUser) {
-      alert('저장하려면 로그인이 필요합니다.');
-      handleViewChange('auth');
-      return;
-    }
     const newSaved: SavedPrompt = { id: crypto.randomUUID(), singerName, mood, prompt, timestamp: Date.now() };
     setSavedPrompts(prev => [newSaved, ...prev]);
   };
@@ -143,11 +132,6 @@ const App: React.FC = () => {
   };
 
   const handleSaveLyric = (title: string, singerName: string | null, rawLyrics: string, structuredLyrics: string) => {
-    if (!currentUser) {
-      alert('저장하려면 로그인이 필요합니다.');
-      handleViewChange('auth');
-      return;
-    }
     const newSaved: SavedLyric = {
       id: crypto.randomUUID(),
       title,
@@ -169,25 +153,8 @@ const App: React.FC = () => {
     handleViewChange('home');
   };
 
-  const handleLogin = (user: User) => {
-    setCurrentUser(user);
-    localStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
-    handleViewChange('home');
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem(USER_SESSION_KEY);
-    setAnalysis(null);
-    setActivePrompts([]);
-    setStatus(AppStatus.IDLE);
-    handleViewChange('home');
-  };
-
   const renderContent = () => {
     switch (activeView) {
-      case 'auth':
-        return <AuthView onLogin={handleLogin} onBack={() => handleViewChange('home')} />;
       case 'library':
         return (
           <SavedPromptsPage 
@@ -276,8 +243,6 @@ const App: React.FC = () => {
         savedCount={savedPrompts.length + savedLyrics.length}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
-        user={currentUser}
-        onLogout={handleLogout}
       />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl overflow-x-hidden">
         <div 

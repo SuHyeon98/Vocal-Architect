@@ -1,4 +1,11 @@
 
+// Define the User interface used in the authentication components.
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
 export interface MoodVariation {
   mood: string;
   prompt: string;
@@ -21,12 +28,6 @@ export interface SingerAnalysis {
   moodVariations: MoodVariation[];
   moodTags: string[];
   sources?: GroundingSource[];
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
 }
 
 export interface SavedPrompt {

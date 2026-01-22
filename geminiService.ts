@@ -2,7 +2,8 @@
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { SingerAnalysis, GroundingSource } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Always initialize the client using the exact named parameter from process.env.API_KEY.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis> => {
   const response = await ai.models.generateContent({
@@ -52,12 +53,15 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     }
   });
 
-  if (!response.text) throw new Error("No response from Gemini");
-  const analysis = JSON.parse(response.text.trim()) as SingerAnalysis;
+  // Extract text from GenerateContentResponse using the .text property.
+  const text = response.text;
+  if (!text) throw new Error("No response from Gemini");
+  const analysis = JSON.parse(text.trim()) as SingerAnalysis;
   
   const sources: GroundingSource[] = [];
   const metadata = response.candidates?.[0]?.groundingMetadata;
   
+  // Extract website URLs from groundingChunks when Google Search tool is used.
   if (metadata?.groundingChunks) {
     metadata.groundingChunks.forEach((chunk: any) => {
       if (chunk.web?.uri) {
@@ -70,6 +74,7 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     });
   }
   
+  // Dedup sources based on URI for a cleaner UI.
   analysis.sources = sources.reduce((acc: GroundingSource[], current) => {
     const x = acc.find(item => item.uri === current.uri);
     if (!x) {
