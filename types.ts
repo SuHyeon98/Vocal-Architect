@@ -23,6 +23,12 @@ export interface SingerAnalysis {
   sources?: GroundingSource[];
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
 export interface SavedPrompt {
   id: string;
   singerName: string;
