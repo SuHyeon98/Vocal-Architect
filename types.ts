@@ -4,6 +4,11 @@ export interface MoodVariation {
   prompt: string;
 }
 
+export interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
 export interface SingerAnalysis {
   name: string;
   styleKo: string;
@@ -11,8 +16,27 @@ export interface SingerAnalysis {
   representativeSongs: string[];
   vocalTextureKo: string;
   vocalTextureEn: string;
+  vocalDnaPrompt: string;
   moodVariations: MoodVariation[];
   moodTags: string[];
+  sources?: GroundingSource[];
+}
+
+export interface SavedPrompt {
+  id: string;
+  singerName: string;
+  mood: string;
+  prompt: string;
+  timestamp: number;
+}
+
+export interface SavedLyric {
+  id: string;
+  title: string;
+  singerName: string | null;
+  rawLyrics: string;
+  structuredLyrics: string;
+  timestamp: number;
 }
 
 export interface HistoryItem extends SingerAnalysis {
