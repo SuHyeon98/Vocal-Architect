@@ -43,7 +43,6 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // State for Lyric Architect persistence
   const [lyricDraft, setLyricDraft] = useState<LyricDraft>({
     title: '',
     artistId: '',
@@ -51,7 +50,6 @@ const App: React.FC = () => {
     structured: ''
   });
 
-  // Handle theme and storage initialization
   useEffect(() => {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -76,7 +74,6 @@ const App: React.FC = () => {
     if (savedL) setSavedLyrics(JSON.parse(savedL));
   }, []);
 
-  // Handle directional sliding
   const handleViewChange = (newView: ViewType) => {
     const newIndex = VIEW_ORDER.indexOf(newView);
     const currentIndex = VIEW_ORDER.indexOf(activeView);
@@ -141,6 +138,10 @@ const App: React.FC = () => {
     setSavedPrompts(prev => [newSaved, ...prev]);
   };
 
+  const handleUpdateSavedPrompt = (id: string, newText: string) => {
+    setSavedPrompts(prev => prev.map(p => p.id === id ? { ...p, prompt: newText } : p));
+  };
+
   const handleSaveLyric = (title: string, singerName: string | null, rawLyrics: string, structuredLyrics: string) => {
     if (!currentUser) {
       alert('저장하려면 로그인이 필요합니다.');
@@ -177,7 +178,6 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem(USER_SESSION_KEY);
-    // Reset app state on logout for security
     setAnalysis(null);
     setActivePrompts([]);
     setStatus(AppStatus.IDLE);
@@ -195,6 +195,7 @@ const App: React.FC = () => {
             lyrics={savedLyrics}
             onDeletePrompt={handleDeleteSavedPrompt} 
             onDeleteLyric={handleDeleteSavedLyric}
+            onUpdatePrompt={handleUpdateSavedPrompt}
             onBack={() => handleViewChange('home')}
           />
         );
@@ -220,7 +221,7 @@ const App: React.FC = () => {
                 {status === AppStatus.LOADING && (
                   <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-softblack-card rounded-3xl border border-slate-200 dark:border-zinc-800 backdrop-blur-sm shadow-xl dark:shadow-2xl">
                     <LoadingSpinner />
-                    <p className="mt-4 text-slate-500 dark:text-zinc-400 animate-pulse">음악 데이터를 분석하는 중입니다...</p>
+                    <p className="mt-4 text-slate-500 dark:text-zinc-400 animate-pulse">심층 데이터를 분석하는 중입니다...</p>
                   </div>
                 )}
                 {status === AppStatus.ERROR && (
@@ -245,7 +246,7 @@ const App: React.FC = () => {
                       <div className="absolute inset-0 bg-blue-500/5 rounded-full animate-pulse"></div>
                     </div>
                     <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-zinc-100 tracking-tight">분석할 가수를 입력하세요</h2>
-                    <p className="text-slate-500 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">음악 스타일, 보컬 특징, 그리고 Suno AI 프롬프트를 전문적으로 생성해드립니다.</p>
+                    <p className="text-slate-500 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">팬 커뮤니티 평판부터 기술적 보컬 분석까지, 전문적인 Suno 프롬프트를 생성합니다.</p>
                   </div>
                 )}
               </div>
@@ -279,7 +280,6 @@ const App: React.FC = () => {
         onLogout={handleLogout}
       />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl overflow-x-hidden">
-        {/* Animated container with directional sliding */}
         <div 
           key={activeView} 
           className={`animate-in fade-in ${slideClass} duration-500 ease-out fill-mode-forwards`}
@@ -288,7 +288,7 @@ const App: React.FC = () => {
         </div>
       </main>
       <footer className="py-8 border-t border-slate-200 dark:border-zinc-800 text-center text-slate-400 dark:text-zinc-600 text-sm">
-        <p>© 2024 Vocal Architect • Gemini 3.0 Pro Powered</p>
+        <p>© 2024 Vocal Architect • AI Powered Vocal Analysis</p>
       </footer>
     </div>
   );

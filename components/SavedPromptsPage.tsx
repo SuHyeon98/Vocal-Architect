@@ -7,12 +7,15 @@ interface SavedPromptsPageProps {
   lyrics: SavedLyric[];
   onDeletePrompt: (id: string) => void;
   onDeleteLyric: (id: string) => void;
+  onUpdatePrompt: (id: string, newText: string) => void;
   onBack: () => void;
 }
 
-const SavedPromptsPage: React.FC<SavedPromptsPageProps> = ({ prompts, lyrics, onDeletePrompt, onDeleteLyric, onBack }) => {
+const SavedPromptsPage: React.FC<SavedPromptsPageProps> = ({ prompts, lyrics, onDeletePrompt, onDeleteLyric, onUpdatePrompt, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'prompts' | 'lyrics'>('prompts');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editBuffer, setEditBuffer] = useState('');
 
   const filteredPrompts = prompts.filter(p => 
     p.singerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -28,6 +31,16 @@ const SavedPromptsPage: React.FC<SavedPromptsPageProps> = ({ prompts, lyrics, on
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     alert('클립보드에 복사되었습니다!');
+  };
+
+  const startEdit = (id: string, currentText: string) => {
+    setEditingId(id);
+    setEditBuffer(currentText);
+  };
+
+  const saveEdit = (id: string) => {
+    onUpdatePrompt(id, editBuffer);
+    setEditingId(null);
   };
 
   return (
@@ -49,25 +62,23 @@ const SavedPromptsPage: React.FC<SavedPromptsPageProps> = ({ prompts, lyrics, on
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="검색어를 입력하세요..."
-            className="w-full bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-xl py-3 px-4 pl-10 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all shadow-md dark:shadow-none"
+            className="w-full bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-xl py-3 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 shadow-md"
           />
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
       </div>
 
       <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
         <button 
           onClick={() => setActiveTab('prompts')}
-          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 flex items-center gap-2 ${activeTab === 'prompts' ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 flex items-center gap-2 ${activeTab === 'prompts' ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-400 dark:text-slate-500'}`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           저장된 프롬프트 ({prompts.length})
         </button>
         <button 
           onClick={() => setActiveTab('lyrics')}
-          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 flex items-center gap-2 ${activeTab === 'lyrics' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
+          className={`px-6 py-3 font-bold text-sm transition-all border-b-2 flex items-center gap-2 ${activeTab === 'lyrics' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-400 dark:text-slate-500'}`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           저장된 가사 ({lyrics.length})
         </button>
       </div>
@@ -75,36 +86,56 @@ const SavedPromptsPage: React.FC<SavedPromptsPageProps> = ({ prompts, lyrics, on
       {activeTab === 'prompts' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPrompts.map((item) => (
-            <div key={item.id} className="bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col gap-4 shadow-xl dark:shadow-none transition-transform hover:scale-[1.02]">
+            <div key={item.id} className="bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col gap-4 shadow-xl">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="text-lg font-bold text-slate-900 dark:text-white">{item.singerName}</h4>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 rounded-md mt-1 inline-block uppercase">{item.mood}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 rounded-md mt-1 inline-block uppercase">{item.mood}</span>
                 </div>
-                <button onClick={() => onDeletePrompt(item.id)} className="p-2 text-slate-300 dark:text-zinc-700 hover:text-red-500 rounded-lg transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                <button onClick={() => onDeletePrompt(item.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
               </div>
-              <p className="text-xs font-mono text-emerald-700 dark:text-blue-300 bg-slate-50 dark:bg-black/40 p-4 rounded-xl line-clamp-4 h-28 shadow-inner overflow-hidden">{item.prompt}</p>
-              <button onClick={() => copyToClipboard(item.prompt)} className="w-full py-3 bg-slate-800 dark:bg-zinc-800 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                프롬프트 복사
-              </button>
+
+              {editingId === item.id ? (
+                <textarea
+                  value={editBuffer}
+                  onChange={(e) => setEditBuffer(e.target.value)}
+                  rows={4}
+                  className="w-full bg-emerald-50/30 dark:bg-black/40 p-3 rounded-xl border border-emerald-100 dark:border-zinc-800 font-mono text-xs focus:outline-none resize-none"
+                />
+              ) : (
+                <p className="text-xs font-mono text-emerald-700 dark:text-blue-300 bg-slate-50 dark:bg-black/40 p-4 rounded-xl line-clamp-4 h-28 overflow-hidden shadow-inner">{item.prompt}</p>
+              )}
+
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => editingId === item.id ? saveEdit(item.id) : startEdit(item.id, item.prompt)} 
+                  className="flex-1 py-3 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 rounded-xl font-bold text-sm hover:bg-slate-200"
+                >
+                  {editingId === item.id ? '저장' : '편집'}
+                </button>
+                <button 
+                  onClick={() => copyToClipboard(editingId === item.id ? editBuffer : item.prompt)} 
+                  className="flex-1 py-3 bg-slate-800 dark:bg-zinc-700 text-white rounded-xl font-bold text-sm hover:bg-emerald-600"
+                >
+                  복사
+                </button>
+              </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLyrics.map((item) => (
-            <div key={item.id} className="bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col gap-4 shadow-xl dark:shadow-none transition-transform hover:scale-[1.02]">
+            <div key={item.id} className="bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col gap-4 shadow-xl">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="text-lg font-bold text-slate-900 dark:text-white truncate">{item.title}</h4>
-                  {item.singerName && <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 rounded-md mt-1 inline-block">{item.singerName} 스타일</span>}
+                  {item.singerName && <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 rounded-md mt-1 inline-block">{item.singerName} 스타일</span>}
                 </div>
-                <button onClick={() => onDeleteLyric(item.id)} className="p-2 text-slate-300 dark:text-zinc-700 hover:text-red-500 rounded-lg transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                <button onClick={() => onDeleteLyric(item.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
               </div>
               <p className="text-xs font-mono text-indigo-700 dark:text-indigo-300 bg-slate-50 dark:bg-black/40 p-4 rounded-xl line-clamp-4 h-28 whitespace-pre-wrap shadow-inner overflow-hidden">{item.structuredLyrics}</p>
               <button onClick={() => copyToClipboard(item.structuredLyrics)} className="w-full py-3 bg-slate-800 dark:bg-zinc-800 hover:bg-indigo-600 text-white rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
                 가사 복사
               </button>
             </div>
