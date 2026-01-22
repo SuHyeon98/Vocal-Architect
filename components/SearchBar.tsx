@@ -22,7 +22,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Enter singer name (e.g. IU, Adele, Bruno Mars)..."
+        placeholder="분석할 가수의 이름을 입력하세요 (예: 아이유, 아델, 브루노 마스)..."
         className="w-full bg-white dark:bg-softblack-card border border-slate-200 dark:border-zinc-800 rounded-2xl py-5 px-6 pl-14 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/50 transition-all duration-300 placeholder:text-slate-400 dark:placeholder:text-zinc-600 shadow-lg shadow-blue-500/5 dark:shadow-2xl text-slate-900 dark:text-zinc-100"
         disabled={isLoading}
       />
@@ -36,7 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         disabled={isLoading || !query.trim()}
         className="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-300 dark:disabled:bg-zinc-800 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg shadow-blue-600/20"
       >
-        {isLoading ? 'Analyzing...' : 'Analyze'}
+        {isLoading ? '분석 중...' : '분석하기'}
       </button>
     </form>
   );
