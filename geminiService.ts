@@ -16,9 +16,10 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     분석 가이드라인:
     - 해당 가수가 실제로 사용하는 발성법과 고유한 음색의 질감을 매우 구체적이고 전문적인 음악 용어를 사용하여 서술하세요.
     - 'styleKo'와 'vocalTextureKo'는 상세한 한국어 설명을, 'styleEn'과 'vocalTextureEn'은 그에 대응하는 전문적인 영문 설명을 작성하세요.
-    - 'moodVariations'의 'mood' 제목은 반드시 한국어로 작성하세요 (예: "애절한 발라드", "에너지 넘치는 록").
+    - 'moodVariations'의 'mood' 제목은 반드시 한국어로 작성하세요.
     - 'moodTags'는 가수를 상징하는 핵심 키워드 6개를 생성하세요.
-    - 'vocalDnaPrompt' 작성 시: 가수의 이름 등 고유 명사를 절대 포함하지 말고, 오직 목소리의 물리적 특성, 배음, 질감만을 영문 태그로 나열하세요.
+    - 'vocalDnaPrompt' 작성 시: 목소리의 물리적 특성, 배음, 질감만을 영문 태그로 나열하세요.
+    - 'representativeSongs': 구글 검색을 통해 "${singerName}"의 실제 공식 유튜브 뮤직비디오나 라이브 영상 URL을 찾아 3-5개 포함하세요. URL은 반드시 유효한 유튜브 주소여야 합니다.
     
     결과는 반드시 JSON 형식을 따르세요.`,
     config: {
@@ -28,32 +29,41 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
         type: Type.OBJECT,
         properties: {
           name: { type: Type.STRING },
-          styleKo: { type: Type.STRING, description: "상세 음악 스타일 분석 (한국어)" },
-          styleEn: { type: Type.STRING, description: "Detailed musical style analysis (English)" },
-          representativeSongs: { type: Type.ARRAY, items: { type: Type.STRING }, description: "상징적인 대표곡 리스트" },
-          vocalTextureKo: { type: Type.STRING, description: "전문적인 보컬 테크닉 및 질감 분석 (한국어)" },
-          vocalTextureEn: { type: Type.STRING, description: "Detailed vocal texture analysis (English)" },
-          vocalDnaPrompt: { type: Type.STRING, description: "Suno AI Style용 고품질 보컬 태그 (영문)" },
+          styleKo: { type: Type.STRING },
+          styleEn: { type: Type.STRING },
+          representativeSongs: { 
+            type: Type.ARRAY, 
+            items: { 
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                url: { type: Type.STRING }
+              },
+              required: ["title", "url"]
+            } 
+          },
+          vocalTextureKo: { type: Type.STRING },
+          vocalTextureEn: { type: Type.STRING },
+          vocalDnaPrompt: { type: Type.STRING },
           moodVariations: {
             type: Type.ARRAY,
             maxItems: 6,
             items: {
               type: Type.OBJECT,
               properties: {
-                mood: { type: Type.STRING, description: "분위기 제목 (반드시 한국어)" },
+                mood: { type: Type.STRING },
                 prompt: { type: Type.STRING }
               },
               required: ["mood", "prompt"]
             }
           },
-          moodTags: { type: Type.ARRAY, items: { type: Type.STRING }, description: "가수 핵심 키워드 태그 (최대 6개)" },
+          moodTags: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
         required: ["name", "styleKo", "styleEn", "representativeSongs", "vocalTextureKo", "vocalTextureEn", "vocalDnaPrompt", "moodVariations", "moodTags"]
       }
     }
   });
 
-  // Extract text from GenerateContentResponse using the .text property.
   const text = response.text;
   if (!text) throw new Error("No response from Gemini");
   const analysis = JSON.parse(text.trim()) as SingerAnalysis;
@@ -61,7 +71,6 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
   const sources: GroundingSource[] = [];
   const metadata = response.candidates?.[0]?.groundingMetadata;
   
-  // Extract website URLs from groundingChunks when Google Search tool is used.
   if (metadata?.groundingChunks) {
     metadata.groundingChunks.forEach((chunk: any) => {
       if (chunk.web?.uri) {
@@ -74,14 +83,10 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
     });
   }
   
-  // Dedup sources based on URI for a cleaner UI.
   analysis.sources = sources.reduce((acc: GroundingSource[], current) => {
     const x = acc.find(item => item.uri === current.uri);
-    if (!x) {
-      return acc.concat([current]);
-    } else {
-      return acc;
-    }
+    if (!x) return acc.concat([current]);
+    return acc;
   }, []);
 
   return analysis;
@@ -90,7 +95,7 @@ export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis>
 export const refinePrompt = async (singerName: string, vocalTexture: string, currentPrompt: string, instruction?: string): Promise<string> => {
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Singer: ${singerName}\nVocal DNA Context: ${vocalTexture}\nCurrent Style Prompt: ${currentPrompt}\n${instruction ? `User Refinement Goal: ${instruction}` : ''}\n\nTask: Refine the Suno AI style tags to be more evocative, musically accurate, and tailored to the user's specific request if provided. Return ONLY the comma-separated English tags.`,
+    contents: `Singer: ${singerName}\nVocal DNA Context: ${vocalTexture}\nCurrent Style Prompt: ${currentPrompt}\n${instruction ? `User Refinement Goal: ${instruction}` : ''}\n\nTask: Refine the Suno AI style tags to be more evocative and musically accurate. Return ONLY the comma-separated English tags.`,
   });
   return response.text?.trim() || currentPrompt;
 };
@@ -98,7 +103,7 @@ export const refinePrompt = async (singerName: string, vocalTexture: string, cur
 export const generateSongSpecificPrompt = async (singerName: string, vocalTexture: string, moodPrompt: string, songTitle: string): Promise<string> => {
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Singer: ${singerName}\nVocal Texture: ${vocalTexture}\nBase Style: ${moodPrompt}\nTarget Reference Song: ${songTitle}\n\nTask: Create a Suno style prompt that specifically replicates the arrangement, instrumentation, and vocal delivery style of "${songTitle}". Return ONLY tags.`,
+    contents: `Singer: ${singerName}\nVocal Texture: ${vocalTexture}\nBase Style: ${moodPrompt}\nTarget Reference Song: ${songTitle}\n\nTask: Create a Suno style prompt that specifically replicates the arrangement of "${songTitle}". Return ONLY tags.`,
   });
   return response.text?.trim() || moodPrompt;
 };
@@ -107,15 +112,8 @@ export const structureLyrics = async (rawLyrics: string, artistContext?: { name:
   const prompt = `
     User's Raw Lyrics:
     ${rawLyrics}
-    
     ${artistContext ? `Artist Reference: ${artistContext.name}\nMusical Background: ${artistContext.style}\nVocal Style: ${artistContext.texture}` : ''}
-
-    Task: Structure these lyrics for Suno AI (v3.5+). 
-    
-    CRITICAL INSTRUCTION (STRICTLY OBSERVE):
-    1. DO NOT CHANGE ANY WORDS from the original lyrics. 
-    2. Wrap existing lines with Suno AI metatags (e.g., [Intro], [Verse 1], [Chorus], [Bridge], [Outro]).
-    3. Return ONLY the structured output.`;
+    Task: Structure these lyrics for Suno AI (v3.5+). Wrap existing lines with Suno AI metatags. Return ONLY the structured output.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -135,4 +133,41 @@ export const transcribeAudio = async (base64Audio: string): Promise<string> => {
     }
   });
   return response.text || "";
+};
+
+export const generateScoreFromAudio = async (base64Audio: string, mimeType: string): Promise<{ abc: string; analysis: string }> => {
+  const prompt = `
+    Analyze this audio file and transcribe it into musical notation.
+    1. Identify the key and tempo (BPM).
+    2. Extract the main melody and chords.
+    3. Convert the transcription into standard ABC Notation (ABC format).
+    4. Provide a brief musical analysis of the track IN KOREAN (한국어로 작성해주세요).
+
+    Return the result in JSON format with 'abc' (the string containing the ABC notation) and 'analysis' (a string describing the musical features in Korean).
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: {
+      parts: [
+        { inlineData: { mimeType: mimeType, data: base64Audio } },
+        { text: prompt }
+      ]
+    },
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          abc: { type: Type.STRING },
+          analysis: { type: Type.STRING }
+        },
+        required: ["abc", "analysis"]
+      }
+    }
+  });
+
+  const text = response.text;
+  if (!text) throw new Error("Could not analyze audio for score.");
+  return JSON.parse(text.trim());
 };

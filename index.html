@@ -5,8 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vocal Architect - Singer Analysis & Suno Prompt Generator</title>
+  <!-- 로고 디자인을 반영한 원형 음악 노트 파비콘 -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23eff6ff' /%3E%3Cpath d='M13 22V10l10-2v11M13 22c0 1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm10-3c0 1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z' stroke='%232563eb' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- abcjs CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/abcjs-audio.css">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -31,7 +35,6 @@
       font-family: 'Inter', sans-serif;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-    /* Smooth scrollbar for dark mode */
     .dark ::-webkit-scrollbar {
       width: 8px;
     }
@@ -45,6 +48,46 @@
     .dark ::-webkit-scrollbar-thumb:hover {
       background: #3f3f46;
     }
+
+    /* Custom styles for abcjs rendering */
+    #score-render svg {
+      width: 100%;
+      height: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* Dark Mode Score Rendering */
+    .dark #score-render svg {
+      background: #18181b; /* Matches dark card background */
+    }
+
+    .dark #score-render svg path,
+    .dark #score-render svg text,
+    .dark #score-render svg rect:not(.abcjs-note-highlight) {
+      fill: #e2e8f0 !important; /* Slate 200 */
+      stroke: #e2e8f0 !important;
+    }
+
+    .dark #score-render svg .abcjs-staff {
+      stroke: #475569 !important; /* Slate 600 for staff lines */
+    }
+
+    /* MIDI Player Dark Mode Adjustment */
+    .dark .abcjs-audio-track {
+      background-color: #09090b !important;
+    }
+    .dark .abcjs-audio-selection {
+      background-color: rgba(225, 29, 72, 0.2) !important;
+    }
+    .dark .abcjs-audio-cursor {
+      background-color: #e11d48 !important;
+    }
+    .dark .abcjs-btn {
+      fill: #e2e8f0 !important;
+    }
   </style>
 <script type="importmap">
 {
@@ -52,7 +95,8 @@
     "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "abcjs": "https://esm.sh/abcjs@^6.4.4"
   }
 }
 </script>

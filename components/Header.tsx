@@ -15,7 +15,8 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
     switch (activeView) {
       case 'home': return 'translate-x-0';
       case 'lyric-editor': return 'translate-x-full';
-      case 'library': return 'translate-x-[200%]';
+      case 'score-architect': return 'translate-x-[200%]';
+      case 'library': return 'translate-x-[300%]';
       default: return 'translate-x-0';
     }
   };
@@ -24,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
     switch (activeView) {
       case 'home': return 'bg-blue-600';
       case 'lyric-editor': return 'bg-indigo-600';
+      case 'score-architect': return 'bg-rose-600';
       case 'library': return 'bg-emerald-600';
       default: return 'bg-blue-600';
     }
@@ -41,19 +43,19 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-zinc-400 hidden sm:block transition-all tracking-tight">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-zinc-400 hidden lg:block transition-all tracking-tight">
             Vocal Architect
           </h1>
         </div>
 
         <nav className="relative flex items-center bg-slate-100 dark:bg-zinc-900/50 p-1 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-inner">
           <div 
-            className={`absolute top-1 bottom-1 left-1 w-[calc(33.33%-2.66px)] ${getActiveColor()} rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-lg ${getSliderPosition()}`}
+            className={`absolute top-1 bottom-1 left-1 w-[calc(25%-2px)] ${getActiveColor()} rounded-xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-lg ${getSliderPosition()}`}
           />
           
           <button
             onClick={() => onViewChange('home')}
-            className={`relative z-10 w-24 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`relative z-10 w-20 sm:w-28 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'home' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
@@ -61,15 +63,23 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, savedCount, i
           </button>
           <button
             onClick={() => onViewChange('lyric-editor')}
-            className={`relative z-10 w-24 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`relative z-10 w-20 sm:w-28 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'lyric-editor' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
             가사
           </button>
           <button
+            onClick={() => onViewChange('score-architect')}
+            className={`relative z-10 w-20 sm:w-28 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+              activeView === 'score-architect' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
+            }`}
+          >
+            악보
+          </button>
+          <button
             onClick={() => onViewChange('library')}
-            className={`relative z-10 w-24 sm:w-36 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`relative z-10 w-20 sm:w-28 py-2 text-xs sm:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
               activeView === 'library' ? 'text-white' : 'text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >

@@ -1,11 +1,4 @@
 
-// Define the User interface used in the authentication components.
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
 export interface MoodVariation {
   mood: string;
   prompt: string;
@@ -17,11 +10,16 @@ export interface GroundingSource {
   snippet?: string;
 }
 
+export interface RepresentativeSong {
+  title: string;
+  url: string;
+}
+
 export interface SingerAnalysis {
   name: string;
   styleKo: string;
   styleEn: string;
-  representativeSongs: string[];
+  representativeSongs: RepresentativeSong[];
   vocalTextureKo: string;
   vocalTextureEn: string;
   vocalDnaPrompt: string;
@@ -30,12 +28,20 @@ export interface SingerAnalysis {
   sources?: GroundingSource[];
 }
 
+export interface Folder {
+  id: string;
+  name: string;
+  color: string;
+  timestamp: number;
+}
+
 export interface SavedPrompt {
   id: string;
   singerName: string;
   mood: string;
   prompt: string;
   timestamp: number;
+  folderId?: string;
 }
 
 export interface SavedLyric {
@@ -45,6 +51,7 @@ export interface SavedLyric {
   rawLyrics: string;
   structuredLyrics: string;
   timestamp: number;
+  folderId?: string;
 }
 
 export interface HistoryItem extends SingerAnalysis {
@@ -57,9 +64,21 @@ export interface TranscriptionResult {
   status: 'idle' | 'recording' | 'processing' | 'success' | 'error';
 }
 
+export interface ScoreDraft {
+  fileName: string;
+  abcNotation: string;
+  analysis: string;
+}
+
 export enum AppStatus {
   IDLE = 'IDLE',
   LOADING = 'LOADING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR'
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
 }
