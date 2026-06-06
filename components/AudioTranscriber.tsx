@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { transcribeAudio } from '../geminiService';
+import { GEMINI_API_KEY_MISSING_MESSAGE, isGeminiApiKeyMissingError, transcribeAudio } from '../geminiService';
 import LoadingSpinner from './LoadingSpinner';
 
 const AudioTranscriber: React.FC = () => {
@@ -34,8 +34,8 @@ const AudioTranscriber: React.FC = () => {
             const text = await transcribeAudio(base64Audio);
             setTranscription(text);
           } catch (err) {
-            console.error(err);
-            setTranscription("Transcription failed. Please try again.");
+            console.error("Audio transcription failed:", err instanceof Error ? err.name : "UnknownError");
+            setTranscription(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "Transcription failed. Please try again.");
           } finally {
             setIsProcessing(false);
           }

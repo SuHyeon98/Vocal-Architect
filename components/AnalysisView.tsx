@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SingerAnalysis, MoodVariation, Folder } from '../types';
-import { refinePrompt, generateSongSpecificPrompt } from '../geminiService';
+import { GEMINI_API_KEY_MISSING_MESSAGE, generateSongSpecificPrompt, isGeminiApiKeyMissingError, refinePrompt } from '../geminiService';
 import LoadingSpinner from './LoadingSpinner';
 
 interface AnalysisViewProps {
@@ -71,7 +71,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
       setShowDnaRefineInput(false);
       setDnaInstruction('');
     } catch (err) {
-      alert("DNA 정교화에 실패했습니다.");
+      alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "DNA 정교화에 실패했습니다.");
     } finally {
       setIsDnaProcessing(false);
     }
@@ -87,7 +87,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
       setShowDnaSongInput(false);
       setDnaSongQuery('');
     } catch (err) {
-      alert("곡별 DNA 생성에 실패했습니다.");
+      alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "곡별 DNA 생성에 실패했습니다.");
     } finally {
       setIsDnaProcessing(false);
     }
@@ -108,7 +108,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
       setInstructionIndex(null);
       setUserInstruction('');
     } catch (err) {
-      alert("프롬프트 정교화에 실패했습니다.");
+      alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "프롬프트 정교화에 실패했습니다.");
     } finally {
       setRefiningIndices(prev => { const n = new Set(prev); n.delete(index); return n; });
     }
@@ -123,7 +123,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, prompts, onPrompt
       setSongInputIndex(null);
       setSongQuery('');
     } catch (err) {
-      alert("곡별 프롬프트 생성에 실패했습니다.");
+      alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "곡별 프롬프트 생성에 실패했습니다.");
     } finally {
       setRefiningIndices(prev => { const n = new Set(prev); n.delete(index); return n; });
     }

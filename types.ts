@@ -52,6 +52,7 @@ export interface SavedLyric {
   structuredLyrics: string;
   timestamp: number;
   folderId?: string;
+  userId?: string;
 }
 
 export interface HistoryItem extends SingerAnalysis {
@@ -81,4 +82,6 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  photoURL?: string | null;
+  provider?: 'email' | 'google' | 'kakao' | 'naver';
 }

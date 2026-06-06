@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import abcjs from 'abcjs';
-import { generateScoreFromAudio } from '../geminiService';
+import { GEMINI_API_KEY_MISSING_MESSAGE, generateScoreFromAudio, isGeminiApiKeyMissingError } from '../geminiService';
 import { ScoreDraft } from '../types';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -73,20 +73,26 @@ const ScoreArchitectPage: React.FC<ScoreArchitectPageProps> = ({ onBack, draft, 
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
-        const result = await generateScoreFromAudio(base64Audio, file.type);
-        const newDraft = {
-          fileName: file.name,
-          abcNotation: result.abc,
-          analysis: result.analysis
-        };
-        onDraftChange(newDraft);
-        setAbcText(result.abc);
-        setIsProcessing(false);
+        try {
+          const base64Audio = (reader.result as string).split(',')[1];
+          const result = await generateScoreFromAudio(base64Audio, file.type);
+          const newDraft = {
+            fileName: file.name,
+            abcNotation: result.abc,
+            analysis: result.analysis
+          };
+          onDraftChange(newDraft);
+          setAbcText(result.abc);
+        } catch (err) {
+          console.error("Score generation failed:", err instanceof Error ? err.name : "UnknownError");
+          alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "오디오 분석 중 오류가 발생했습니다.");
+        } finally {
+          setIsProcessing(false);
+        }
       };
     } catch (err) {
-      console.error(err);
-      alert("오디오 분석 중 오류가 발생했습니다.");
+      console.error("Audio file processing failed:", err instanceof Error ? err.name : "UnknownError");
+      alert(isGeminiApiKeyMissingError(err) ? GEMINI_API_KEY_MISSING_MESSAGE : "오디오 분석 중 오류가 발생했습니다.");
       setIsProcessing(false);
     }
   };
