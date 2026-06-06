@@ -1,4 +1,3 @@
-import { GenerateContentResponse, GoogleGenAI, Type } from "@google/genai";
 import { GroundingSource, SingerAnalysis } from "./types";
 
 export const GEMINI_API_KEY_MISSING_MESSAGE =
@@ -18,13 +17,24 @@ export const isGeminiApiKeyMissingError = (error: unknown): error is GeminiApiKe
   return error instanceof GeminiApiKeyMissingError;
 };
 
-const getGeminiClient = () => {
+const getGeminiClient = async () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (!apiKey) {
     throw new GeminiApiKeyMissingError();
   }
 
+  const { GoogleGenAI } = await import("@google/genai");
   return new GoogleGenAI({ apiKey });
+};
+
+const getGeminiClientWithType = async () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new GeminiApiKeyMissingError();
+  }
+
+  const { GoogleGenAI, Type } = await import("@google/genai");
+  return { ai: new GoogleGenAI({ apiKey }), Type };
 };
 
 interface WebGroundingChunk {
@@ -53,7 +63,7 @@ export interface GenerateLyricsInput {
 }
 
 export const analyzeSinger = async (singerName: string): Promise<SingerAnalysis> => {
-  const ai = getGeminiClient();
+  const { ai, Type } = await getGeminiClientWithType();
   const response = await ai.models.generateContent({
     model: "gemini-3-pro-preview",
     contents: `가수 또는 우타이테 "${singerName}"에 대해 공개 자료를 종합해 전문적으로 분석해 주세요.
@@ -147,7 +157,7 @@ export const refinePrompt = async (
   currentPrompt: string,
   instruction?: string,
 ): Promise<string> => {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: `Singer: ${singerName}
@@ -167,7 +177,7 @@ export const generateSongSpecificPrompt = async (
   moodPrompt: string,
   songTitle: string,
 ): Promise<string> => {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: `Singer: ${singerName}
@@ -185,7 +195,7 @@ export const structureLyrics = async (
   rawLyrics: string,
   artistContext?: { name: string; style: string; texture: string },
 ): Promise<string> => {
-  const ai = getGeminiClient();
+  const ai = await getGeminiClient();
   const prompt = `User's Raw Lyrics:
 ${rawLyrics}
 
@@ -203,7 +213,7 @@ Task: Structure these lyrics for Suno AI. Wrap existing lines with Suno metatags
 
 export const generateLyrics = async (input: GenerateLyricsInput): Promise<string> => {
   try {
-    const ai = getGeminiClient();
+    const ai = await getGeminiClient();
     const sections = input.sections.length > 0 ? input.sections.join(", ") : "Verse, Chorus";
     const prompt = `전문 한국어 작사가처럼 아래 조건에 맞는 완성형 가사를 작성해 주세요.
 
@@ -237,8 +247,8 @@ export const generateLyrics = async (input: GenerateLyricsInput): Promise<string
 };
 
 export const transcribeAudio = async (base64Audio: string): Promise<string> => {
-  const ai = getGeminiClient();
-  const response: GenerateContentResponse = await ai.models.generateContent({
+  const ai = await getGeminiClient();
+  const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: {
       parts: [
@@ -255,7 +265,7 @@ export const generateScoreFromAudio = async (
   base64Audio: string,
   mimeType: string,
 ): Promise<{ abc: string; analysis: string }> => {
-  const ai = getGeminiClient();
+  const { ai, Type } = await getGeminiClientWithType();
   const prompt = `Analyze this audio file and transcribe it into musical notation.
 1. Identify the key and tempo (BPM).
 2. Extract the main melody and chords.
